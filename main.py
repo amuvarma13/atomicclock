@@ -30,8 +30,8 @@ def get_next_number():
 
 @app.route('/reset', methods=['GET'])
 def reset_counter():
-    # Get optional value from request, default to 0
-    new_value = request.json.get('value', 0) if request.json else 0
+    # Get optional value from query parameter, default to 0
+    new_value = request.args.get('value', 0)
     try:
         new_value = int(new_value)
         current_value = counter.reset(new_value)
