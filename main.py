@@ -28,7 +28,7 @@ def get_next_number():
     next_num = counter.increment()
     return jsonify({"number": next_num})
 
-@app.route('/reset', methods=['POST'])
+@app.route('/reset', methods=['GET'])
 def reset_counter():
     # Get optional value from request, default to 0
     new_value = request.json.get('value', 0) if request.json else 0
