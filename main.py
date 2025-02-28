@@ -28,6 +28,14 @@ def get_next_number():
     next_num = counter.increment()
     return jsonify({"number": next_num})
 
+@app.route('/value', methods=['GET'])
+def get_current_value():
+    # Access the counter value in a thread-safe manner using the lock
+    with counter.lock:
+        current_value = counter.value
+    return jsonify({"number": current_value})
+
+
 @app.route('/reset', methods=['GET'])
 def reset_counter():
     # Get optional value from query parameter, default to 0
