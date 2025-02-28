@@ -19,33 +19,90 @@ class AtomicCounter:
             self.value = value
             return self.value
 
-# Create a global counter instance
-counter = AtomicCounter()
+# Create three independent counter instances
+default_counter = AtomicCounter()
+created_counter = AtomicCounter()
+crashed_counter = AtomicCounter()
 
+# Endpoints for the default counter
 @app.route('/next', methods=['GET'])
 def get_next_number():
-    # Get the next unique integer
-    next_num = counter.increment()
+    next_num = default_counter.increment()
     return jsonify({"number": next_num})
 
 @app.route('/value', methods=['GET'])
 def get_current_value():
-    # Access the counter value in a thread-safe manner using the lock
-    with counter.lock:
-        current_value = counter.value
+    with default_counter.lock:
+        current_value = default_counter.value
     return jsonify({"number": current_value})
 
- 
 @app.route('/reset', methods=['GET'])
 def reset_counter():
-    # Get optional value from query parameter, default to 0
     new_value = request.args.get('value', 0)
     try:
         new_value = int(new_value)
-        current_value = counter.reset(new_value)
+        current_value = default_counter.reset(new_value)
         return jsonify({
             "status": "success", 
-            "message": f"Counter reset to {current_value}",
+            "message": f"Default counter reset to {current_value}",
+            "value": current_value
+        })
+    except ValueError:
+        return jsonify({
+            "status": "error",
+            "message": "Invalid value provided. Please provide an integer."
+        }), 400
+
+# Endpoints for the "created" counter
+@app.route('/created/next', methods=['GET'])
+def get_next_created():
+    next_num = created_counter.increment()
+    return jsonify({"number": next_num})
+
+@app.route('/created/value', methods=['GET'])
+def get_value_created():
+    with created_counter.lock:
+        current_value = created_counter.value
+    return jsonify({"number": current_value})
+
+@app.route('/created/reset', methods=['GET'])
+def reset_created():
+    new_value = request.args.get('value', 0)
+    try:
+        new_value = int(new_value)
+        current_value = created_counter.reset(new_value)
+        return jsonify({
+            "status": "success", 
+            "message": f"Created counter reset to {current_value}",
+            "value": current_value
+        })
+    except ValueError:
+        return jsonify({
+            "status": "error",
+            "message": "Invalid value provided. Please provide an integer."
+        }), 400
+
+# Endpoints for the "crashed" counter
+@app.route('/crashed/next', methods=['GET'])
+def get_next_crashed():
+    next_num = crashed_counter.increment()
+    return jsonify({"number": next_num})
+
+@app.route('/crashed/value', methods=['GET'])
+def get_value_crashed():
+    with crashed_counter.lock:
+        current_value = crashed_counter.value
+    return jsonify({"number": current_value})
+
+@app.route('/crashed/reset', methods=['GET'])
+def reset_crashed():
+    new_value = request.args.get('value', 0)
+    try:
+        new_value = int(new_value)
+        current_value = crashed_counter.reset(new_value)
+        return jsonify({
+            "status": "success", 
+            "message": f"Crashed counter reset to {current_value}",
             "value": current_value
         })
     except ValueError:
