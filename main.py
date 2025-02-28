@@ -35,7 +35,7 @@ def get_current_value():
         current_value = counter.value
     return jsonify({"number": current_value})
 
-
+ 
 @app.route('/reset', methods=['GET'])
 def reset_counter():
     # Get optional value from query parameter, default to 0
